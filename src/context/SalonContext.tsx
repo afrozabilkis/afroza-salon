@@ -23,18 +23,18 @@ import {
 } from '../data/salonData';
 
 const STORAGE_KEYS = {
-  SERVICES: 'afroza_services_v2',
-  CATEGORIES: 'afroza_categories_v2',
-  OFFERS: 'afroza_offers_v2',
-  STAFF: 'afroza_staff_v2',
-  REVIEWS: 'afroza_reviews_v2',
-  GALLERY: 'afroza_gallery_v2',
-  APPOINTMENTS: 'afroza_appointments_v2',
-  BUSINESS_INFO: 'afroza_business_info_v2',
-  WHATSAPP_SETTINGS: 'afroza_whatsapp_settings_v2',
-  PWA_SETTINGS: 'afroza_pwa_settings_v2',
-  WEBSITE_SETTINGS: 'afroza_website_settings_v2',
-  ADMIN_AUTH: 'afroza_admin_auth_v2',
+  SERVICES: 'afroza_services_v3',
+  CATEGORIES: 'afroza_categories_v3',
+  OFFERS: 'afroza_offers_v3',
+  STAFF: 'afroza_staff_v3',
+  REVIEWS: 'afroza_reviews_v3',
+  GALLERY: 'afroza_gallery_v3',
+  APPOINTMENTS: 'afroza_appointments_v3',
+  BUSINESS_INFO: 'afroza_business_info_v3',
+  WHATSAPP_SETTINGS: 'afroza_whatsapp_settings_v3',
+  PWA_SETTINGS: 'afroza_pwa_settings_v3',
+  WEBSITE_SETTINGS: 'afroza_website_settings_v3',
+  ADMIN_AUTH: 'afroza_admin_auth_v3',
 };
 
 const DEFAULT_BUSINESS_INFO: BusinessInfo = {
