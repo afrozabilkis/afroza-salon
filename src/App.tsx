@@ -188,7 +188,7 @@ export default function App() {
         currentPath={currentPath}
         onNavigate={navigate}
         onOpenBooking={() => handleOpenBooking()}
-        onOpenPwaInstall={handleInstallPwa}
+        onOpenPwaInstall={() => setIsPwaModalOpen(true)}
       />
 
       {/* Main Content View */}
