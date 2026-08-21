@@ -1,0 +1,6 @@
+{
+  "name": "Afroza Gents Salon | Luxury Men's Grooming Atelier Dubai",
+  "description": "Premier gents salon and luxury grooming atelier in International City Phase 2 (Warsan 4), Dubai. Executive haircuts, royal beard sculpting, hair treatments, men's facials, and spa relaxation.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

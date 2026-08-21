@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <title>Afroza Gents Salon | Premier Men's Grooming &amp; Barbershop Dubai</title>
+    <meta name="description" content="Afroza Gents Salon in International City Phase 2 (Warsan 4), Dubai offers executive haircutting, royal beard styling, hair treatments, facials, mani-pedi, and relaxing spa grooming." />
+    
+    <!-- PWA & Mobile Web App -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#121212" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Afroza Gents Salon" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23121212' stroke='%23C5A059' stroke-width='2'/%3E%3Ctext x='50' y='64' font-family='serif' font-size='42' font-weight='600' fill='%23C5A059' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E" />
+    <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=192&auto=format&fit=crop&q=80" />
+
+    <!-- Open Graph / SEO -->
+    <meta property="og:type" content="business.business" />
+    <meta property="og:title" content="Afroza Gents Salon | Premier Men's Grooming &amp; Barbershop Dubai" />
+    <meta property="og:description" content="Executive haircuts, royal beard grooming, hair treatments, facials, and luxury gents spa in International City Phase 2, Dubai." />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1200&auto=format&fit=crop&q=85" />
+    <meta property="og:site_name" content="Afroza Gents Salon" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Afroza Gents Salon | International City Phase 2, Dubai" />
+    <meta name="twitter:description" content="Experience executive gents grooming, precision fades, royal beard sculpting, and revitalizing spa services in Dubai." />
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1200&auto=format&fit=crop&q=85" />
+
+    <!-- Google Fonts: Cormorant Garamond & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- LocalBusiness Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BarberShop",
+      "name": "Afroza Gents Salon",
+      "image": "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1200&auto=format&fit=crop&q=85",
+      "url": "https://maps.app.goo.gl/YyXHMtRJQ3N5eZqc8",
+      "telephone": "+971567179467",
+      "priceRange": "AED 25 - AED 450",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Shop 8, Al Marsoumy Building, 43 Street, Warsan 4",
+        "addressLocality": "International City Phase 2",
+        "addressRegion": "Dubai",
+        "postalCode": "00000",
+        "addressCountry": "AE"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 25.1582,
+        "longitude": 55.4194
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+          "opens": "10:00",
+          "closes": "00:00"
+        }
+      ],
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "328"
+      }
+    }
+    </script>
+  </head>
+  <body class="bg-[#F9F7F2] text-[#121212] antialiased selection:bg-[#C5A059]/30 selection:text-[#121212] overflow-x-hidden font-sans">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(err => {
+            console.log('SW registration note:', err);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>
