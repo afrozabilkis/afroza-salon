@@ -61,7 +61,7 @@ export const ReviewsSection: React.FC = () => {
 
         {/* Reviews Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {activeReviews.slice(0, 6).map((review) => (
+          {(activeReviews || []).slice(0, 6).map((review) => (
             <div
               key={review.id}
               className="bg-white p-7 sm:p-8 border border-[#E5E1DA] flex flex-col justify-between space-y-5 hover:shadow-xl transition-all duration-300 shadow-xs"

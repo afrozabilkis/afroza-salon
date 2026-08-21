@@ -109,7 +109,7 @@ export const Header: React.FC<HeaderProps> = ({
           
           {/* Left Nav Links */}
           <div className="hidden xl:flex items-center gap-7 text-[11px] uppercase tracking-widest font-medium text-[#121212]">
-            {navLinks.slice(0, 4).map((link) => {
+            {(navLinks || []).slice(0, 4).map((link) => {
               const isActive = currentPath === link.path || (link.path !== '/' && currentPath.startsWith(link.path));
               return (
                 <button
@@ -143,7 +143,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Right Nav Links & Actions */}
           <div className="hidden lg:flex items-center gap-5">
             <div className="hidden xl:flex items-center gap-7 text-[11px] uppercase tracking-widest font-medium text-[#121212]">
-              {navLinks.slice(4).map((link) => {
+              {(navLinks || []).slice(4).map((link) => {
                 const isActive = currentPath === link.path || (link.path !== '/' && currentPath.startsWith(link.path));
                 return (
                   <button

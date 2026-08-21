@@ -27,8 +27,8 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
 }) => {
   const { activeServices, businessInfo, formatPriceAED, getWhatsAppUrl } = useSalon();
 
-  const service = activeServices.find((s) => s.slug === slug || s.id === slug) || activeServices[0];
-  const relatedServices = activeServices.filter(
+  const service = (activeServices || []).find((s) => s.slug === slug || s.id === slug) || activeServices?.[0];
+  const relatedServices = (activeServices || []).filter(
     (s) => s.category === service?.category && s.id !== service?.id
   ).slice(0, 3);
 

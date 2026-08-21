@@ -203,7 +203,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                     {/* Products tags */}
                     {service.productsUsed && (
                       <div className="pt-2 flex flex-wrap gap-1">
-                        {service.productsUsed.slice(0, 2).map((prod, i) => (
+                        {(service.productsUsed || []).slice(0, 2).map((prod, i) => (
                           <span key={i} className="text-[9px] uppercase tracking-wider px-2 py-0.5 bg-[#F9F7F2] border border-[#E5E1DA] text-[#4A4A4A] font-medium">
                             {prod}
                           </span>

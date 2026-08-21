@@ -214,7 +214,7 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#2C2C2C]">
-                {appointments.slice(0, 5).map((apt) => (
+                {(appointments || []).slice(0, 5).map((apt) => (
                   <tr key={apt.id} className="hover:bg-[#1E1E1E]/60 transition-colors">
                     <td className="py-3.5 px-4">
                       <div className="font-bold text-white">{apt.customerName}</div>
