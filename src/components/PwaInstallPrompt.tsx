@@ -7,8 +7,13 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-export const PwaInstallPrompt: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+export const PwaInstallPrompt: React.FC<{ 
+  isOpen: boolean; 
+  onClose: () => void;
+  onInstall?: () => void;
+  isInstallable?: boolean;
+}> = ({ isOpen, onClose, onInstall, isInstallable }) => {
+  const [internalDeferredPrompt, setInternalDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
 
@@ -25,7 +30,7 @@ export const PwaInstallPrompt: React.FC<{ isOpen: boolean; onClose: () => void }
 
     const handler = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      setInternalDeferredPrompt(e as BeforeInstallPromptEvent);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
@@ -33,16 +38,20 @@ export const PwaInstallPrompt: React.FC<{ isOpen: boolean; onClose: () => void }
   }, []);
 
   const handleInstallClick = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const choiceResult = await deferredPrompt.userChoice;
+    if (onInstall) {
+      onInstall();
+    } else if (internalDeferredPrompt) {
+      internalDeferredPrompt.prompt();
+      const choiceResult = await internalDeferredPrompt.userChoice;
       if (choiceResult.outcome === 'accepted') {
         setIsInstalled(true);
       }
-      setDeferredPrompt(null);
+      setInternalDeferredPrompt(null);
       onClose();
     }
   };
+
+  const hasPrompt = isInstallable || !!internalDeferredPrompt;
 
   if (!isOpen) return null;
 
@@ -86,7 +95,7 @@ export const PwaInstallPrompt: React.FC<{ isOpen: boolean; onClose: () => void }
               Install our high-performance PWA for instant one-tap appointment requests, VIP service access, and seamless offline browsing.
             </p>
 
-            {deferredPrompt ? (
+            {hasPrompt ? (
               <button
                 onClick={handleInstallClick}
                 className="w-full py-4 px-6 bg-[#121212] hover:bg-[#C5A059] text-white text-[11px] uppercase tracking-widest font-bold transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer"

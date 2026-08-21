@@ -92,7 +92,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={onOpenPwaInstall}
             size="sm"
             id="top-bar-install-btn"
-            className="hidden md:inline-flex"
+            className="inline-flex"
           />
         </div>
       </div>
