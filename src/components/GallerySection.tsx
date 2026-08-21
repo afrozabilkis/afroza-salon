@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Maximize2, X, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
-import { GALLERY_ITEMS } from '../data/salonData';
+import { useSalon } from '../context/SalonContext';
 import { GalleryItem } from '../types';
 
 interface GallerySectionProps {
@@ -8,6 +8,7 @@ interface GallerySectionProps {
 }
 
 export const GallerySection: React.FC<GallerySectionProps> = ({ onViewAllGallery }) => {
+  const { businessInfo, activeGalleryItems } = useSalon();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [activeLightboxIndex, setActiveLightboxIndex] = useState<number | null>(null);
 
@@ -22,8 +23,8 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ onViewAllGallery
   ];
 
   const filteredItems = selectedCategory === 'all'
-    ? GALLERY_ITEMS
-    : GALLERY_ITEMS.filter((item) => item.category === selectedCategory);
+    ? activeGalleryItems
+    : activeGalleryItems.filter((item) => item.category === selectedCategory);
 
   // Keyboard navigation for lightbox
   useEffect(() => {
@@ -58,7 +59,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ onViewAllGallery
               Visual Atelier Tour
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-white">
-              The Aurelia Aesthetic Portfolio
+              The {businessInfo.name} Portfolio
             </h2>
           </div>
           {onViewAllGallery && (
@@ -90,7 +91,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ onViewAllGallery
 
         {/* Gallery Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {filteredItems.map((item, index) => (
+          {filteredItems.slice(0, 8).map((item, index) => (
             <div
               key={item.id}
               onClick={() => setActiveLightboxIndex(index)}
@@ -198,3 +199,4 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ onViewAllGallery
     </section>
   );
 };
+

@@ -11,7 +11,8 @@ import {
   MessageSquare,
   Car
 } from 'lucide-react';
-import { SERVICES, SPECIAL_OFFERS, SALON_INFO } from '../data/salonData';
+import { useSalon } from '../context/SalonContext';
+import { WhatsAppButton } from '../components/WhatsAppButton';
 
 interface BookPageProps {
   initialServiceId?: string;
@@ -19,7 +20,9 @@ interface BookPageProps {
 }
 
 export const BookPage: React.FC<BookPageProps> = ({ initialServiceId, onNavigate }) => {
-  const [selectedServiceId, setSelectedServiceId] = useState<string>(initialServiceId || SERVICES[0].id);
+  const { activeServices, activeOffers, businessInfo, addAppointment, formatPriceAED, getWhatsAppUrl } = useSalon();
+
+  const [selectedServiceId, setSelectedServiceId] = useState<string>(initialServiceId || activeServices[0]?.id || '');
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('11:00 AM');
   const [fullName, setFullName] = useState<string>('');
@@ -28,26 +31,60 @@ export const BookPage: React.FC<BookPageProps> = ({ initialServiceId, onNavigate
   const [notes, setNotes] = useState<string>('');
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false);
 
-  const selectedService = SERVICES.find((s) => s.id === selectedServiceId) || 
-    SPECIAL_OFFERS.find((o) => o.id === selectedServiceId) || 
-    SERVICES[0];
+  const selectedService = activeServices.find((s) => s.id === selectedServiceId) || 
+    activeOffers.find((o) => o.id === selectedServiceId) || 
+    activeServices[0];
 
   const timeSlots = [
     '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', 
     '02:00 PM', '03:30 PM', '05:00 PM', '06:30 PM', '08:00 PM', '09:30 PM', '10:30 PM', '11:00 PM'
   ];
 
+  const getServiceName = () => {
+    if (!selectedService) return 'Salon Service';
+    if ('name' in selectedService) return selectedService.name;
+    if ('title' in selectedService) return (selectedService as any).title;
+    return 'Salon Service';
+  };
+
+  const getServicePrice = () => {
+    if (!selectedService) return 'AED 0';
+    if ('priceAED' in selectedService) return formatPriceAED((selectedService as any).priceAED);
+    if ('offerPriceAED' in selectedService) return formatPriceAED((selectedService as any).offerPriceAED);
+    return 'AED 0';
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName || !phone || !selectedDate) return;
+    if (!fullName || !phone || !selectedDate || !selectedService) return;
+
+    addAppointment({
+      customerName: fullName,
+      customerPhone: phone,
+      customerEmail: email,
+      serviceId: selectedService.id,
+      serviceName: getServiceName(),
+      date: selectedDate,
+      timeSlot: selectedTime,
+      guestsCount: 1,
+      notes,
+      status: 'pending',
+    });
+
     setIsConfirmed(true);
   };
 
   const handleWhatsAppInstant = () => {
-    const text = encodeURIComponent(
-      `Hello ${SALON_INFO.name}, I would like to reserve an appointment for: ${('name' in selectedService ? selectedService.name : (selectedService as any).title)} on ${selectedDate || 'Upcoming Date'} at ${selectedTime}. My name is ${fullName || 'Guest'}.`
-    );
-    window.open(`https://wa.me/${SALON_INFO.whatsappRaw}?text=${text}`, '_blank');
+    const text = 
+      `Hello ${businessInfo.name}, I would like to reserve an appointment for:\n` +
+      `• Service: ${getServiceName()}\n` +
+      `• Date: ${selectedDate || 'Upcoming Date'}\n` +
+      `• Time: ${selectedTime}\n` +
+      `• Guest Name: ${fullName || 'Guest'}\n` +
+      (notes ? `• Notes: ${notes}\n` : '') +
+      `Please confirm availability. Thank you!`;
+    const url = getWhatsAppUrl(text);
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -81,33 +118,32 @@ export const BookPage: React.FC<BookPageProps> = ({ initialServiceId, onNavigate
                 We Look Forward to Seeing You, {fullName}
               </h2>
               <p className="text-sm text-[#4A4A4A] font-light">
-                Your appointment request for <strong>{('name' in selectedService ? selectedService.name : (selectedService as any).title)}</strong> on <strong>{selectedDate}</strong> at <strong>{selectedTime}</strong> has been received.
+                Your appointment request for <strong>{getServiceName()}</strong> on <strong>{selectedDate}</strong> at <strong>{selectedTime}</strong> has been received.
               </p>
             </div>
 
             <div className="bg-[#F9F7F2] p-5 border border-[#E5E1DA] text-xs text-left space-y-2 max-w-md mx-auto">
               <div className="flex justify-between">
                 <span className="text-[#4A4A4A]">Selected Service:</span>
-                <span className="font-bold text-[#121212]">{('name' in selectedService ? selectedService.name : (selectedService as any).title)}</span>
+                <span className="font-bold text-[#121212]">{getServiceName()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#4A4A4A]">Salon Location:</span>
-                <span className="font-bold text-[#121212]">Shop 8, Al Marsoumy Bldg, Warsan 4</span>
+                <span className="font-bold text-[#121212]">{businessInfo.address}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#4A4A4A]">Customer Parking:</span>
-                <span className="font-bold text-[#C5A059]">Free Outside</span>
+                <span className="font-bold text-[#C5A059]">{businessInfo.parkingInfo}</span>
               </div>
             </div>
 
             <div className="flex flex-wrap justify-center gap-3 pt-4">
-              <button
+              <WhatsAppButton
                 onClick={handleWhatsAppInstant}
-                className="px-6 py-3.5 bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] uppercase tracking-widest font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
-              >
-                <MessageSquare className="w-4 h-4" />
-                <span>Confirm on WhatsApp</span>
-              </button>
+                label="Confirm on WhatsApp"
+                size="md"
+                id="book-confirm-whatsapp-btn"
+              />
               <button
                 onClick={() => onNavigate('/')}
                 className="px-6 py-3.5 bg-[#121212] hover:bg-[#C5A059] text-white text-[10px] uppercase tracking-widest font-bold transition-all cursor-pointer shadow-xs"
@@ -134,19 +170,21 @@ export const BookPage: React.FC<BookPageProps> = ({ initialServiceId, onNavigate
                     className="w-full px-4 py-3.5 bg-[#F9F7F2] border border-[#E5E1DA] text-xs font-medium text-[#121212] focus:outline-none focus:border-[#121212]"
                   >
                     <optgroup label="Grooming Services">
-                      {SERVICES.map((s) => (
+                      {activeServices.map((s) => (
                         <option key={s.id} value={s.id}>
-                          {s.name} — AED {s.priceAED} ({s.durationMinutes} min)
+                          {s.name} — {formatPriceAED(s.priceAED)} ({s.durationMinutes} min)
                         </option>
                       ))}
                     </optgroup>
-                    <optgroup label="Special Offers & Packages">
-                      {SPECIAL_OFFERS.map((o) => (
-                        <option key={o.id} value={o.id}>
-                          {o.title} — AED {o.offerPriceAED} (Special Combo)
-                        </option>
-                      ))}
-                    </optgroup>
+                    {activeOffers.length > 0 && (
+                      <optgroup label="Special Offers & Packages">
+                        {activeOffers.map((o) => (
+                          <option key={o.id} value={o.id}>
+                            {o.title} — {formatPriceAED(o.offerPriceAED)} (Special Combo)
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
                   </select>
                 </div>
 
@@ -255,16 +293,16 @@ export const BookPage: React.FC<BookPageProps> = ({ initialServiceId, onNavigate
 
                 <div className="space-y-3 border-b border-[#2C2C2C] pb-5">
                   <h3 className="font-serif text-2xl font-bold text-white leading-snug">
-                    {('name' in selectedService ? selectedService.name : (selectedService as any).title)}
+                    {getServiceName()}
                   </h3>
                   <div className="flex items-center justify-between text-xs text-[#A0988E] font-light">
                     <span>Duration:</span>
-                    <span className="text-white font-medium">{selectedService.durationMinutes} minutes</span>
+                    <span className="text-white font-medium">{selectedService?.durationMinutes || 45} minutes</span>
                   </div>
                   <div className="flex items-center justify-between text-xs text-[#A0988E] font-light">
                     <span>Rate:</span>
                     <span className="font-serif text-xl font-bold text-[#C5A059]">
-                      AED {'priceAED' in selectedService ? selectedService.priceAED : (selectedService as any).offerPriceAED}
+                      {getServicePrice()}
                     </span>
                   </div>
                 </div>
@@ -285,13 +323,12 @@ export const BookPage: React.FC<BookPageProps> = ({ initialServiceId, onNavigate
                 </div>
 
                 <div className="pt-2">
-                  <button
+                  <WhatsAppButton
                     onClick={handleWhatsAppInstant}
-                    className="w-full py-3.5 bg-[#1E1E1E] hover:bg-[#2C2C2C] border border-[#333333] text-white text-[10px] uppercase tracking-widest font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <MessageSquare className="w-4 h-4 text-emerald-400" />
-                    <span>Book via WhatsApp Instead</span>
-                  </button>
+                    size="md"
+                    label="Book via WhatsApp Instead"
+                    className="w-full"
+                  />
                 </div>
               </div>
 

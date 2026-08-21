@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { Star, ShieldCheck, ExternalLink, MessageSquare, ThumbsUp } from 'lucide-react';
-import { SALON_INFO, REVIEWS } from '../data/salonData';
+import { useSalon } from '../context/SalonContext';
 
 export const ReviewsPage: React.FC = () => {
+  const { businessInfo, activeReviews } = useSalon();
   const [filterRating, setFilterRating] = useState<number | null>(null);
 
   const filteredReviews = filterRating 
-    ? REVIEWS.filter(r => r.rating === filterRating)
-    : REVIEWS;
+    ? activeReviews.filter(r => r.rating === filterRating)
+    : activeReviews;
 
   const handleOpenGoogle = () => {
-    window.open(SALON_INFO.googleMapsUrl, '_blank');
+    window.open(businessInfo.googleMapsUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -26,7 +27,7 @@ export const ReviewsPage: React.FC = () => {
             Client Reviews &amp; Experiences
           </h1>
           <p className="text-sm sm:text-base text-[#4A4A4A] font-light leading-relaxed">
-            Read verified feedback from customers who trust Afroza Gents Salon in Warsan 4, International City Phase 2 for haircuts, beard sculpting, and wellness treatments.
+            Read verified feedback from customers who trust {businessInfo.name} in {businessInfo.shortLocation} for haircuts, beard sculpting, and wellness treatments.
           </p>
         </div>
 
@@ -36,7 +37,7 @@ export const ReviewsPage: React.FC = () => {
             
             <div className="md:col-span-4 text-center md:text-left space-y-2">
               <div className="font-serif text-6xl sm:text-7xl font-normal text-white leading-none">
-                {SALON_INFO.rating}
+                {businessInfo.rating}
               </div>
               <div className="flex items-center justify-center md:justify-start gap-1 text-[#C5A059]">
                 {[...Array(5)].map((_, i) => (
@@ -76,7 +77,7 @@ export const ReviewsPage: React.FC = () => {
 
             <div className="md:col-span-3 text-center md:text-right space-y-3">
               <span className="text-xs text-[#C5A059] font-bold block">
-                {SALON_INFO.reviewCount} Verified Google Reviews
+                {businessInfo.reviewCount} Verified Google Reviews
               </span>
               <button
                 onClick={handleOpenGoogle}
@@ -150,3 +151,4 @@ export const ReviewsPage: React.FC = () => {
     </div>
   );
 };
+

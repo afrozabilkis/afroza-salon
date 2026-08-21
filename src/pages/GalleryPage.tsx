@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Maximize2, X, ChevronLeft, ChevronRight } from 'lucide-react';
-import { GALLERY_ITEMS, SALON_INFO } from '../data/salonData';
+import { useSalon } from '../context/SalonContext';
 import { GalleryItem } from '../types';
 
 export const GalleryPage: React.FC = () => {
+  const { businessInfo, activeGalleryItems } = useSalon();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [activeLightboxIndex, setActiveLightboxIndex] = useState<number | null>(null);
 
@@ -18,8 +19,8 @@ export const GalleryPage: React.FC = () => {
   ];
 
   const filteredItems = selectedCategory === 'all'
-    ? GALLERY_ITEMS
-    : GALLERY_ITEMS.filter((item) => item.category === selectedCategory);
+    ? activeGalleryItems
+    : activeGalleryItems.filter((item) => item.category === selectedCategory);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -52,10 +53,10 @@ export const GalleryPage: React.FC = () => {
             Visual Barbershop Archive
           </span>
           <h1 className="font-serif text-4xl sm:text-5xl font-normal text-[#121212] tracking-tight">
-            The Afroza Aesthetic Gallery
+            The {businessInfo.name} Gallery
           </h1>
           <p className="text-sm sm:text-base text-[#4A4A4A] font-light leading-relaxed">
-            Explore our styling stations, precision skin fades, royal hot towel beard sculpting, and wellness treatment zones in Warsan 4, International City Phase 2, Dubai.
+            Explore our styling stations, precision skin fades, royal hot towel beard sculpting, and wellness treatment zones in {businessInfo.shortLocation}.
           </p>
         </div>
 
@@ -177,3 +178,4 @@ export const GalleryPage: React.FC = () => {
     </div>
   );
 };
+

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Sparkles, Clock, ArrowRight, Check } from 'lucide-react';
-import { CATEGORIES, SERVICES } from '../data/salonData';
+import { useSalon } from '../context/SalonContext';
 import { Service, ServiceCategoryId } from '../types';
 
 interface ServicesSectionProps {
@@ -14,11 +14,12 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
   onSelectServiceDetail,
   onViewAllServices,
 }) => {
+  const { activeServices, activeCategories, formatPriceAED } = useSalon();
   const [activeCategory, setActiveCategory] = useState<string>('all');
 
   const filteredServices = activeCategory === 'all'
-    ? SERVICES
-    : SERVICES.filter((s) => s.category === activeCategory);
+    ? activeServices
+    : activeServices.filter((s) => s.category === activeCategory);
 
   return (
     <section className="py-20 sm:py-28 bg-[#F4F1EC] text-[#121212] border-b border-[#E5E1DA]" id="services-section">
@@ -56,7 +57,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
           >
             All Rituals
           </button>
-          {CATEGORIES.map((cat) => (
+          {activeCategories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
@@ -137,7 +138,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
                 <div>
                   <span className="text-[9px] uppercase tracking-widest text-[#C5A059] font-bold block">Tariff</span>
                   <span className="font-serif text-xl sm:text-2xl font-bold text-[#121212]">
-                    AED {service.priceAED}
+                    {formatPriceAED(service.priceAED)}
                   </span>
                 </div>
 

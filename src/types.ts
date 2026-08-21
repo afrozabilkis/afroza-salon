@@ -2,34 +2,38 @@ export interface Service {
   id: string;
   slug: string;
   name: string;
-  category: ServiceCategoryId;
-  categoryName: string;
+  category: string;
+  categoryName?: string;
   priceAED: number;
-  durationMinutes: number;
-  shortDescription: string;
-  fullDescription: string;
+  discountPriceAED?: number;
+  duration?: number;
+  durationMinutes?: number;
+  description?: string;
+  shortDescription?: string;
+  fullDescription?: string;
   featured?: boolean;
+  popular?: boolean;
+  active?: boolean;
+  order?: number;
+  sortOrder?: number;
+  included?: string[];
   benefits?: string[];
   ritualSteps?: string[];
   productsUsed?: string[];
-  image: string;
+  image?: string;
 }
 
-export type ServiceCategoryId = 
-  | 'hair-cuts'
-  | 'beard-shave'
-  | 'hair-treatments'
-  | 'facials-skin'
-  | 'manicure-pedicure'
-  | 'massage-waxing'
-  | 'groom-packages';
+export type ServiceCategoryId = string;
 
 export interface ServiceCategory {
-  id: ServiceCategoryId;
+  id: string;
   name: string;
-  tagline: string;
-  description: string;
-  image: string;
+  tagline?: string;
+  description?: string;
+  image?: string;
+  active?: boolean;
+  order?: number;
+  sortOrder?: number;
 }
 
 export interface Review {
@@ -37,34 +41,65 @@ export interface Review {
   author: string;
   rating: number;
   date: string;
-  text: string;
+  text?: string;
+  comment?: string;
+  service?: string;
   serviceMentioned?: string;
-  isGoogleVerified: boolean;
+  isGoogleVerified?: boolean;
+  verified?: boolean;
   avatar?: string;
+  approved?: boolean;
 }
 
 export interface GalleryItem {
   id: string;
   title: string;
-  category: 'interior' | 'hair' | 'beard' | 'treatments' | 'nails' | 'tools' | 'spa' | 'vip' | 'shave' | 'beauty';
+  category: string;
   categoryLabel: string;
   image: string;
   caption?: string;
+  active?: boolean;
+  featured?: boolean;
+  sortOrder?: number;
 }
 
 export interface SpecialOffer {
   id: string;
   slug: string;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   description: string;
   originalPriceAED: number;
-  offerPriceAED: number;
+  offerPriceAED?: number;
+  priceAED?: number;
   validUntil: string;
-  durationMinutes: number;
-  inclusions: string[];
-  tag: string;
-  image: string;
+  durationMinutes?: number;
+  duration?: number;
+  inclusions?: string[];
+  included?: string[];
+  tag?: string;
+  discount?: string;
+  image?: string;
+  active?: boolean;
+  featured?: boolean;
+}
+
+export interface AppointmentRecord {
+  id: string;
+  customerName: string;
+  customerPhone: string;
+  customerWhatsapp?: string;
+  customerEmail?: string;
+  serviceId: string;
+  serviceName: string;
+  staffId?: string;
+  staffName?: string;
+  date: string;
+  timeSlot: string;
+  guestsCount?: number;
+  notes?: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  createdAt: string;
 }
 
 export interface AppointmentRequest {
@@ -81,11 +116,14 @@ export interface AppointmentRequest {
 }
 
 export interface ContactMessage {
+  id?: string;
   fullName: string;
   email: string;
   phone: string;
   message: string;
   subject?: string;
+  createdAt?: string;
+  read?: boolean;
 }
 
 export interface FaqItem {
@@ -98,7 +136,66 @@ export interface Stylist {
   id: string;
   name: string;
   role: string;
-  specialty: string;
-  experienceYears: number;
+  position?: string;
+  specialty?: string;
+  specialties?: string[];
+  experience?: string;
+  experienceYears?: number;
+  languages?: string[];
+  bio?: string;
   image: string;
+  active?: boolean;
+  displayOrder?: number;
+}
+
+export interface BusinessInfo {
+  name: string;
+  legalName: string;
+  tagline: string;
+  category: string;
+  address: string;
+  shortLocation: string;
+  phone: string;
+  phoneDisplay: string;
+  whatsapp: string;
+  whatsappRaw: string;
+  email: string;
+  openingHours: string;
+  openingHoursFull: { days: string; hours: string }[];
+  rating: number;
+  reviewCount: number;
+  googleMapsUrl: string;
+  mapEmbedUrl: string;
+  valetParking: string;
+  instagram: string;
+  facebook?: string;
+  tiktok?: string;
+  languages: string[];
+  closingTime?: string;
+}
+
+export interface WhatsAppSettings {
+  whatsappNumber: string;
+  whatsappRaw: string;
+  defaultBookingMsg: string;
+  serviceBookingMsg: string;
+  contactMsg: string;
+}
+
+export interface PwaSettings {
+  appName: string;
+  shortName: string;
+  themeColor: string;
+  backgroundColor: string;
+  appIcon: string;
+}
+
+export interface WebsiteSettings {
+  logoText: string;
+  logoSubtitle: string;
+  faviconUrl: string;
+  seoTitle: string;
+  metaDescription: string;
+  announcementBarText: string;
+  footerText: string;
 }

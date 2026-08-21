@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Sparkles, Clock, Check, Calendar, ArrowRight, ShieldCheck } from 'lucide-react';
-import { CATEGORIES, SERVICES, SALON_INFO } from '../data/salonData';
+import { useSalon } from '../context/SalonContext';
 
 interface PricingPageProps {
   onOpenBooking: (serviceId?: string) => void;
@@ -11,11 +11,12 @@ export const PricingPage: React.FC<PricingPageProps> = ({
   onOpenBooking,
   onSelectServiceDetail,
 }) => {
+  const { activeServices, activeCategories, formatPriceAED } = useSalon();
   const [selectedCat, setSelectedCat] = useState<string>('all');
 
   const categoriesToDisplay = selectedCat === 'all'
-    ? CATEGORIES
-    : CATEGORIES.filter((c) => c.id === selectedCat);
+    ? activeCategories
+    : activeCategories.filter((c) => c.id === selectedCat);
 
   return (
     <div className="w-full py-14 sm:py-24 bg-[#F9F7F2] text-[#121212]" id="pricing-page">
@@ -46,7 +47,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({
           >
             All Categories
           </button>
-          {CATEGORIES.map((cat) => (
+          {activeCategories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setSelectedCat(cat.id)}
@@ -64,7 +65,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({
         {/* Menu Style Sections */}
         <div className="space-y-10">
           {categoriesToDisplay.map((category) => {
-            const categoryServices = SERVICES.filter((s) => s.category === category.id);
+            const categoryServices = activeServices.filter((s) => s.category === category.id);
             if (categoryServices.length === 0) return null;
 
             return (
@@ -116,7 +117,7 @@ export const PricingPage: React.FC<PricingPageProps> = ({
                       <div className="flex items-center justify-between sm:justify-end gap-5 shrink-0 pt-2 sm:pt-0">
                         <div className="text-left sm:text-right">
                           <span className="font-serif text-2xl font-bold text-[#121212] block leading-none">
-                            AED {item.priceAED}
+                            {formatPriceAED(item.priceAED)}
                           </span>
                           <span className="text-[9px] text-[#4A4A4A] uppercase tracking-widest font-light">
                             Inclusive of VAT

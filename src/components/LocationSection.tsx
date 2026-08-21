@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { MapPin, Phone, Clock, MessageSquare, ExternalLink, Send, CheckCircle2, Car, ShieldCheck } from 'lucide-react';
-import { SALON_INFO } from '../data/salonData';
+import { useSalon } from '../context/SalonContext';
 
 export const LocationSection: React.FC = () => {
+  const { businessInfo, getWhatsAppUrl } = useSalon();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -16,12 +17,12 @@ export const LocationSection: React.FC = () => {
   };
 
   const handleOpenWhatsApp = () => {
-    const text = encodeURIComponent(`Hello ${SALON_INFO.name}, I am contacting you regarding an enquiry.`);
-    window.open(`https://wa.me/${SALON_INFO.whatsappRaw}?text=${text}`, '_blank');
+    const url = getWhatsAppUrl(`Hello ${businessInfo.name}, I am contacting you regarding an enquiry.`);
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const handleGetDirections = () => {
-    window.open(SALON_INFO.googleMapsUrl, '_blank');
+    window.open(businessInfo.googleMapsUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -34,7 +35,7 @@ export const LocationSection: React.FC = () => {
             Barbershop Destination
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-[#121212]">
-            Visit Us in International City 2, Dubai
+            Visit Us in {businessInfo.shortLocation}
           </h2>
           <p className="text-sm text-[#4A4A4A] font-light leading-relaxed">
             Conveniently situated on the Ground Floor of Al Marsoumy Building (43 Street) in Warsan 4, with dedicated free customer parking right outside.
@@ -57,7 +58,7 @@ export const LocationSection: React.FC = () => {
                   <span>Salon Address</span>
                 </div>
                 <p className="text-sm text-[#121212] font-serif font-bold">
-                  {SALON_INFO.address}
+                  {businessInfo.address}
                 </p>
                 <p className="text-xs text-[#4A4A4A] flex items-center gap-1.5 pt-1 font-light">
                   <Car className="w-3.5 h-3.5 text-[#C5A059]" />
@@ -72,7 +73,7 @@ export const LocationSection: React.FC = () => {
                   <span>Salon Hours</span>
                 </div>
                 <p className="text-sm text-[#121212] font-serif font-bold">
-                  Monday – Sunday: 10:00 AM – 12:00 AM
+                  Monday – Sunday: 10:00 AM – {businessInfo.closingTime || '12:00 AM'}
                 </p>
                 <p className="text-xs text-[#4A4A4A] pt-1 font-light">
                   Open 7 Days a Week • Appointments &amp; Walk-ins
@@ -93,7 +94,7 @@ export const LocationSection: React.FC = () => {
               </button>
 
               <a
-                href={`tel:${SALON_INFO.phone.replace(/\s+/g, '')}`}
+                href={`tel:${businessInfo.phone.replace(/\s+/g, '')}`}
                 className="flex-1 sm:flex-initial px-6 py-3.5 bg-white hover:bg-[#121212] hover:text-white text-[#121212] text-[11px] uppercase tracking-widest font-bold border border-[#E5E1DA] transition-all flex items-center justify-center gap-2 cursor-pointer"
                 id="location-call-btn"
               >
@@ -115,7 +116,7 @@ export const LocationSection: React.FC = () => {
             <div className="overflow-hidden border border-[#E5E1DA] shadow-xs h-72 sm:h-80 bg-white relative">
               <iframe
                 title="Afroza Gents Salon Dubai Location Map"
-                src={SALON_INFO.mapEmbedUrl}
+                src={businessInfo.mapEmbedUrl}
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -126,7 +127,7 @@ export const LocationSection: React.FC = () => {
               />
               <div className="absolute top-3 left-3 bg-[#121212]/90 backdrop-blur-md text-white px-3 py-1.5 text-xs flex items-center gap-2 border border-white/10">
                 <MapPin className="w-3.5 h-3.5 text-[#C5A059]" />
-                <span className="font-serif">{SALON_INFO.name} • Warsan 4</span>
+                <span className="font-serif">{businessInfo.name} • Warsan 4</span>
               </div>
             </div>
 
@@ -233,3 +234,4 @@ export const LocationSection: React.FC = () => {
     </section>
   );
 };
+

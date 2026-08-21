@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { MapPin, Phone, Clock, MessageSquare, ExternalLink, Send, CheckCircle2, Car, ShieldCheck } from 'lucide-react';
-import { SALON_INFO } from '../data/salonData';
+import { useSalon } from '../context/SalonContext';
 
 export const ContactPage: React.FC = () => {
+  const { businessInfo, getWhatsAppUrl } = useSalon();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -17,12 +18,12 @@ export const ContactPage: React.FC = () => {
   };
 
   const handleWhatsApp = () => {
-    const text = encodeURIComponent(`Hello ${SALON_INFO.name}, I am contacting you from your website contact page.`);
-    window.open(`https://wa.me/${SALON_INFO.whatsappRaw}?text=${text}`, '_blank');
+    const url = getWhatsAppUrl(`Hello ${businessInfo.name}, I am contacting you from your website contact page.`);
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const handleGoogleMaps = () => {
-    window.open(SALON_INFO.googleMapsUrl, '_blank');
+    window.open(businessInfo.googleMapsUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -35,10 +36,10 @@ export const ContactPage: React.FC = () => {
             Barbershop Destination &amp; Inquiries
           </span>
           <h1 className="font-serif text-4xl sm:text-5xl font-normal text-[#121212] tracking-tight">
-            Connect With Afroza Gents Salon
+            Connect With {businessInfo.name}
           </h1>
           <p className="text-sm sm:text-base text-[#4A4A4A] font-light leading-relaxed">
-            Conveniently situated in Warsan 4, International City Phase 2, Dubai. We are open 7 days a week from 10:00 AM until 12:00 AM midnight with dedicated parking right in front of Al Marsoumy Building.
+            Conveniently situated in {businessInfo.shortLocation}. We are open 7 days a week from 10:00 AM until {businessInfo.closingTime || '12:00 AM midnight'} with dedicated parking right in front of Al Marsoumy Building.
           </p>
         </div>
 
@@ -57,7 +58,7 @@ export const ContactPage: React.FC = () => {
                   <span>Salon Address</span>
                 </div>
                 <p className="text-sm sm:text-base text-[#121212] font-serif font-bold">
-                  {SALON_INFO.address}
+                  {businessInfo.address}
                 </p>
                 <div className="pt-2 flex items-center justify-between text-xs text-[#4A4A4A] font-light">
                   <span className="flex items-center gap-1.5">
@@ -83,7 +84,7 @@ export const ContactPage: React.FC = () => {
                     Monday – Sunday
                   </p>
                   <p className="text-xs text-[#4A4A4A] font-light">
-                    10:00 AM – 12:00 AM (Midnight)
+                    10:00 AM – {businessInfo.closingTime || '12:00 AM (Midnight)'}
                   </p>
                 </div>
 
@@ -93,12 +94,12 @@ export const ContactPage: React.FC = () => {
                     <span>Direct Telephone</span>
                   </div>
                   <p className="text-sm text-[#121212] font-serif font-bold">
-                    <a href={`tel:${SALON_INFO.phone.replace(/\s+/g, '')}`} className="hover:text-[#C5A059] transition-colors">
-                      {SALON_INFO.phoneDisplay}
+                    <a href={`tel:${businessInfo.phone.replace(/\s+/g, '')}`} className="hover:text-[#C5A059] transition-colors">
+                      {businessInfo.phoneDisplay}
                     </a>
                   </p>
                   <p className="text-xs text-[#4A4A4A] font-light">
-                    WhatsApp: {SALON_INFO.whatsapp}
+                    WhatsApp: {businessInfo.whatsapp}
                   </p>
                 </div>
               </div>
@@ -109,7 +110,7 @@ export const ContactPage: React.FC = () => {
             <div className="border border-[#E5E1DA] shadow-xs h-80 bg-white overflow-hidden relative">
               <iframe
                 title="Afroza Gents Salon Dubai Location Map"
-                src={SALON_INFO.mapEmbedUrl}
+                src={businessInfo.mapEmbedUrl}
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -120,7 +121,7 @@ export const ContactPage: React.FC = () => {
               />
               <div className="absolute top-3 left-3 bg-[#121212]/90 backdrop-blur-md text-white px-3 py-1.5 text-xs flex items-center gap-2 border border-white/10">
                 <MapPin className="w-3.5 h-3.5 text-[#C5A059]" />
-                <span className="font-serif font-bold">{SALON_INFO.name} • Warsan 4</span>
+                <span className="font-serif font-bold">{businessInfo.name} • Warsan 4</span>
               </div>
             </div>
 
@@ -254,3 +255,4 @@ export const ContactPage: React.FC = () => {
     </div>
   );
 };
+

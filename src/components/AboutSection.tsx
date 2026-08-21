@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sparkles, CheckCircle2, ArrowRight, ShieldCheck, Heart } from 'lucide-react';
-import { SALON_INFO, STYLISTS } from '../data/salonData';
+import { useSalon } from '../context/SalonContext';
 import facialScrubImg from '../assets/images/facial_scrub_1787310568161.jpg';
 
 interface AboutSectionProps {
@@ -9,6 +9,8 @@ interface AboutSectionProps {
 }
 
 export const AboutSection: React.FC<AboutSectionProps> = ({ onLearnMore, onOpenBooking }) => {
+  const { businessInfo } = useSalon();
+
   return (
     <section className="py-20 sm:py-28 bg-[#F9F7F2] text-[#121212] border-b border-[#E5E1DA]" id="about-section">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -21,7 +23,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onLearnMore, onOpenB
             <div className="relative z-10 overflow-hidden border border-[#E5E1DA] shadow-xl bg-white">
               <img
                 src={facialScrubImg}
-                alt="Afroza Gents Salon Master Barbers Dubai"
+                alt={`${businessInfo.name} Master Barbers Dubai`}
                 referrerPolicy="no-referrer"
                 className="w-full h-[460px] sm:h-[540px] object-cover object-center"
               />
@@ -31,7 +33,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onLearnMore, onOpenB
                   “Gentleman confidence is forged through architectural precision, sharp lines, and royal grooming care.”
                 </p>
                 <span className="text-[10px] uppercase tracking-[0.25em] text-[#C5A059] block mt-1.5 font-bold">
-                  — Afroza Master Barbers Philosophy
+                  — {businessInfo.name} Master Barbers Philosophy
                 </span>
               </div>
             </div>
@@ -65,7 +67,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onLearnMore, onOpenB
             </div>
 
             <p className="text-sm sm:text-base text-[#4A4A4A] leading-relaxed font-light">
-              Conveniently located in Al Marsoumy Building in Warsan 4, {SALON_INFO.name} was established to deliver Dubai’s gentlemen an uncompromising standard of grooming. We combine old-world barbering heritage with contemporary style techniques.
+              Conveniently located in Al Marsoumy Building in Warsan 4, {businessInfo.name} was established to deliver Dubai’s gentlemen an uncompromising standard of grooming. We combine old-world barbering heritage with contemporary style techniques.
             </p>
 
             <p className="text-sm sm:text-base text-[#4A4A4A] leading-relaxed font-light">
@@ -100,7 +102,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onLearnMore, onOpenB
                 className="px-8 py-4 bg-[#121212] hover:bg-[#C5A059] text-white text-[11px] uppercase tracking-widest font-bold transition-all shadow-xs cursor-pointer"
                 id="about-book-btn"
               >
-                Experience {SALON_INFO.name}
+                Experience {businessInfo.name}
               </button>
               
               {onLearnMore && (
@@ -123,4 +125,5 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onLearnMore, onOpenB
     </section>
   );
 };
+
 

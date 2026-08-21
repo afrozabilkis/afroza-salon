@@ -1,10 +1,12 @@
 import React from 'react';
 import { Star, ShieldCheck, ExternalLink, MessageSquare } from 'lucide-react';
-import { SALON_INFO, REVIEWS } from '../data/salonData';
+import { useSalon } from '../context/SalonContext';
 
 export const ReviewsSection: React.FC = () => {
+  const { businessInfo, activeReviews } = useSalon();
+
   const handleOpenGoogleReviews = () => {
-    window.open(SALON_INFO.googleMapsUrl, '_blank');
+    window.open(businessInfo.googleMapsUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -23,14 +25,14 @@ export const ReviewsSection: React.FC = () => {
                 Guest Reflections &amp; Critical Acclaim
               </h2>
               <p className="text-sm sm:text-base text-[#E5E1DA] font-light max-w-xl">
-                We take immense pride in delivering bespoke luxury, immaculate hygiene, and attentive service for every client who visits our Jumeirah villa.
+                We take immense pride in delivering bespoke luxury, immaculate hygiene, and attentive service for every client who visits our {businessInfo.shortLocation} salon.
               </p>
             </div>
 
             <div className="lg:col-span-5 flex flex-col sm:flex-row items-center justify-center lg:justify-end gap-6 bg-[#1A1816] p-6 sm:p-8 border border-[#2C2C2C]">
               <div className="text-center sm:text-left space-y-1">
                 <div className="font-serif text-5xl sm:text-6xl font-bold text-white leading-none">
-                  {SALON_INFO.rating}
+                  {businessInfo.rating}
                 </div>
                 <div className="flex items-center justify-center sm:justify-start gap-1 text-[#C5A059]">
                   {[...Array(5)].map((_, i) => (
@@ -38,7 +40,7 @@ export const ReviewsSection: React.FC = () => {
                   ))}
                 </div>
                 <p className="text-xs text-[#E5E1DA] tracking-wide font-light">
-                  Based on <strong className="text-white">{SALON_INFO.reviewCount}</strong> Google reviews
+                  Based on <strong className="text-white">{businessInfo.reviewCount}</strong> Google reviews
                 </p>
               </div>
 
@@ -59,7 +61,7 @@ export const ReviewsSection: React.FC = () => {
 
         {/* Reviews Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {REVIEWS.map((review) => (
+          {activeReviews.slice(0, 6).map((review) => (
             <div
               key={review.id}
               className="bg-white p-7 sm:p-8 border border-[#E5E1DA] flex flex-col justify-between space-y-5 hover:shadow-xl transition-all duration-300 shadow-xs"
@@ -124,3 +126,4 @@ export const ReviewsSection: React.FC = () => {
     </section>
   );
 };
+

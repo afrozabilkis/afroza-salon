@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { X, Calendar, Clock, User, Phone, MessageSquare, Check, Sparkles, AlertCircle, ArrowRight } from 'lucide-react';
-import { SALON_INFO, SERVICES, CATEGORIES } from '../data/salonData';
+import { useSalon } from '../context/SalonContext';
 import { Service } from '../types';
+import { WhatsAppButton } from './WhatsAppButton';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -21,6 +22,9 @@ const TIME_SLOTS = [
   '06:00 PM',
   '07:00 PM',
   '08:00 PM',
+  '09:00 PM',
+  '10:00 PM',
+  '11:00 PM',
 ];
 
 export const BookingModal: React.FC<BookingModalProps> = ({
@@ -28,6 +32,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   onClose,
   preselectedServiceId,
 }) => {
+  const { activeServices, activeCategories, businessInfo, addAppointment, formatPriceAED, getWhatsAppUrl } = useSalon();
+
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   
@@ -37,7 +43,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const [whatsapp, setWhatsapp] = useState('');
   const [email, setEmail] = useState('');
   const [date, setDate] = useState('');
-  const [timeSlot, setTimeSlot] = useState('');
+  const [timeSlot, setTimeSlot] = useState('11:00 AM');
   const [guestsCount, setGuestsCount] = useState(1);
   const [specialRequests, setSpecialRequests] = useState('');
   
@@ -49,21 +55,21 @@ export const BookingModal: React.FC<BookingModalProps> = ({
 
   useEffect(() => {
     if (preselectedServiceId) {
-      const s = SERVICES.find((item) => item.id === preselectedServiceId || item.slug === preselectedServiceId);
+      const s = activeServices.find((item) => item.id === preselectedServiceId || item.slug === preselectedServiceId);
       if (s) {
         setSelectedService(s);
         setSelectedCategory(s.category);
       }
-    } else if (!selectedService && SERVICES.length > 0) {
-      setSelectedService(SERVICES[0]);
+    } else if (!selectedService && activeServices.length > 0) {
+      setSelectedService(activeServices[0]);
     }
-  }, [preselectedServiceId, isOpen]);
+  }, [preselectedServiceId, isOpen, activeServices]);
 
   if (!isOpen) return null;
 
   const filteredServices = selectedCategory === 'all' 
-    ? SERVICES 
-    : SERVICES.filter((s) => s.category === selectedCategory);
+    ? activeServices 
+    : activeServices.filter((s) => s.category === selectedCategory);
 
   const validate = () => {
     const errs: Record<string, string> = {};
@@ -83,23 +89,40 @@ export const BookingModal: React.FC<BookingModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate() || !selectedService) return;
+
+    // Save to SalonContext appointments state
+    addAppointment({
+      customerName: fullName,
+      customerPhone: phone,
+      customerWhatsapp: whatsapp || phone,
+      customerEmail: email,
+      serviceId: selectedService.id,
+      serviceName: selectedService.name,
+      date,
+      timeSlot,
+      guestsCount,
+      notes: specialRequests,
+      status: 'pending',
+    });
+
     setIsSubmitted(true);
   };
 
   const handleWhatsAppBooking = () => {
     const serviceName = selectedService ? selectedService.name : 'Salon Service';
-    const message = encodeURIComponent(
-      `Hello ${SALON_INFO.name}, I would like to enquire about booking an appointment:\n\n` +
+    const message = 
+      `Hello ${businessInfo.name}, I would like to enquire about booking an appointment:\n\n` +
       `• Guest Name: ${fullName || 'Guest'}\n` +
       `• Service: ${serviceName}\n` +
       `• Preferred Date: ${date || 'Earliest Available'}\n` +
       `• Preferred Time: ${timeSlot || 'Flexible'}\n` +
       `• Number of Guests: ${guestsCount}\n` +
       (specialRequests ? `• Special Notes: ${specialRequests}\n` : '') +
-      `\nPlease let me know availability. Thank you.`
-    );
-    window.open(`https://wa.me/${SALON_INFO.whatsappRaw}?text=${message}`, '_blank');
+      `\nPlease let me know availability. Thank you.`;
+    
+    const url = getWhatsAppUrl(message);
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const handleResetAndClose = () => {
@@ -122,12 +145,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               Reserve Your Atelier Experience
             </h2>
             <p className="text-xs text-[#E5E1DA] font-light mt-1">
-              {SALON_INFO.shortLocation} • Daily 10:00 AM – 9:00 PM
+              {businessInfo.shortLocation} • Daily 10:00 AM – 12:00 AM Midnight
             </p>
           </div>
           <button
             onClick={handleResetAndClose}
-            className="p-2 text-[#E5E1DA] hover:text-white transition-colors bg-white/5 hover:bg-white/10"
+            className="p-2 text-[#E5E1DA] hover:text-white transition-colors bg-white/5 hover:bg-white/10 cursor-pointer"
             aria-label="Close modal"
             id="close-booking-modal"
           >
@@ -151,7 +174,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   Thank you, {fullName}
                 </h3>
                 <p className="text-sm sm:text-base text-[#4A4A4A] font-light max-w-lg mx-auto leading-relaxed">
-                  Your appointment request has been received. Our concierge team will contact you shortly to confirm availability.
+                  Your appointment request has been registered in our concierge schedule. Our barbershop team will contact you shortly to confirm your slot.
                 </p>
               </div>
 
@@ -163,7 +186,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 </div>
                 <div className="flex justify-between border-b border-[#E5E1DA] pb-2">
                   <span className="text-[#4A4A4A]">Investment:</span>
-                  <span className="font-bold text-[#121212]">AED {selectedService?.priceAED} ({selectedService?.durationMinutes} min)</span>
+                  <span className="font-bold text-[#121212]">{formatPriceAED(selectedService?.priceAED)} ({selectedService?.durationMinutes} min)</span>
                 </div>
                 <div className="flex justify-between border-b border-[#E5E1DA] pb-2">
                   <span className="text-[#4A4A4A]">Preferred Schedule:</span>
@@ -176,17 +199,15 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-                <button
+                <WhatsAppButton
                   onClick={handleWhatsAppBooking}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-4 bg-[#121212] hover:bg-[#C5A059] text-white text-[11px] uppercase tracking-widest font-bold shadow-xs transition-all cursor-pointer"
+                  label="Instant WhatsApp Confirmation"
+                  size="md"
                   id="whatsapp-confirm-booking-btn"
-                >
-                  <MessageSquare className="w-4 h-4 text-[#C5A059]" />
-                  <span>Instant WhatsApp Confirmation</span>
-                </button>
+                />
                 <button
                   onClick={handleResetAndClose}
-                  className="px-6 py-4 bg-white border border-[#E5E1DA] hover:bg-[#121212] hover:text-white text-[#121212] text-[11px] uppercase tracking-widest font-bold transition-colors cursor-pointer"
+                  className="px-6 py-3 bg-white border border-[#E5E1DA] hover:bg-[#121212] hover:text-white text-[#121212] text-[11px] uppercase tracking-widest font-bold transition-colors cursor-pointer"
                 >
                   Done
                 </button>
@@ -206,7 +227,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setSelectedCategory('all')}
-                    className={`px-3.5 py-1.5 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap transition-all border ${
+                    className={`px-3.5 py-1.5 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap transition-all border cursor-pointer ${
                       selectedCategory === 'all'
                         ? 'bg-[#121212] text-white border-[#121212]'
                         : 'bg-white text-[#4A4A4A] border-[#E5E1DA] hover:border-[#121212]'
@@ -214,12 +235,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   >
                     All Services
                   </button>
-                  {CATEGORIES.map((cat) => (
+                  {activeCategories.map((cat) => (
                     <button
                       key={cat.id}
                       type="button"
                       onClick={() => setSelectedCategory(cat.id)}
-                      className={`px-3.5 py-1.5 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap transition-all border ${
+                      className={`px-3.5 py-1.5 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap transition-all border cursor-pointer ${
                         selectedCategory === cat.id
                           ? 'bg-[#121212] text-white border-[#121212]'
                           : 'bg-white text-[#4A4A4A] border-[#E5E1DA] hover:border-[#121212]'
@@ -239,7 +260,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                         type="button"
                         key={service.id}
                         onClick={() => setSelectedService(service)}
-                        className={`text-left p-3 border transition-all flex flex-col justify-between ${
+                        className={`text-left p-3 border transition-all flex flex-col justify-between cursor-pointer ${
                           isSelected
                             ? 'border-[#121212] bg-[#F4F1EC] shadow-xs'
                             : 'border-[#E5E1DA] bg-white hover:border-[#121212]'
@@ -251,7 +272,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                             {service.name}
                           </span>
                           <span className="text-xs font-bold text-[#C5A059] shrink-0">
-                            AED {service.priceAED}
+                            {formatPriceAED(service.priceAED)}
                           </span>
                         </div>
                         <span className="text-[10px] uppercase tracking-wider text-[#4A4A4A] mt-1 line-clamp-1">
@@ -386,7 +407,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 <div>
                   <textarea
                     rows={2}
-                    placeholder="Special requests, hair length, therapist preferences, or VIP suite inquiries..."
+                    placeholder="Special requests, fade preference, beard style, or notes..."
                     value={specialRequests}
                     onChange={(e) => setSpecialRequests(e.target.value)}
                     className="w-full px-3.5 py-2.5 bg-white border border-[#E5E1DA] text-xs text-[#121212] placeholder:text-[#4A4A4A] focus:outline-none focus:border-[#121212]"
@@ -399,24 +420,22 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               <div className="pt-3 border-t border-[#E5E1DA] flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div className="text-xs text-[#4A4A4A] text-center sm:text-left">
                   <span>Investment: </span>
-                  <strong className="text-[#121212] font-bold">AED {selectedService?.priceAED || 0}</strong>
+                  <strong className="text-[#121212] font-bold">{formatPriceAED(selectedService?.priceAED)}</strong>
                   <span className="ml-2 text-[10px] text-[#4A4A4A]">({selectedService?.durationMinutes || 0} mins)</span>
                 </div>
 
                 <div className="flex items-center gap-3 w-full sm:w-auto">
-                  <button
-                    type="button"
+                  <WhatsAppButton
                     onClick={handleWhatsAppBooking}
-                    className="flex-1 sm:flex-initial px-5 py-3.5 bg-white hover:bg-[#F4F1EC] text-[#121212] text-[10px] uppercase tracking-widest font-bold transition-colors flex items-center justify-center gap-2 border border-[#E5E1DA] cursor-pointer"
+                    size="sm"
+                    label="WhatsApp"
                     id="book-direct-whatsapp-btn"
-                  >
-                    <MessageSquare className="w-4 h-4 text-emerald-600" />
-                    <span>WhatsApp</span>
-                  </button>
+                    className="flex-1 sm:flex-initial"
+                  />
 
                   <button
                     type="submit"
-                    className="flex-1 sm:flex-initial px-7 py-3.5 bg-[#121212] hover:bg-[#C5A059] text-white text-[10px] uppercase tracking-widest font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                    className="flex-1 sm:flex-initial px-7 py-3 bg-[#121212] hover:bg-[#C5A059] text-white text-[10px] uppercase tracking-widest font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
                     id="submit-booking-request-btn"
                   >
                     <span>Request Booking</span>

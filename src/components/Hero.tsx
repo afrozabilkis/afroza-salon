@@ -1,6 +1,7 @@
 import React from 'react';
 import { Calendar, MessageSquare, MapPin, Star, ArrowRight, ShieldCheck, Clock } from 'lucide-react';
-import { SALON_INFO } from '../data/salonData';
+import { useSalon } from '../context/SalonContext';
+import { WhatsAppButton } from './WhatsAppButton';
 import beardSculptingImg from '../assets/images/beard_sculpting_1787310521147.jpg';
 
 interface HeroProps {
@@ -9,13 +10,10 @@ interface HeroProps {
 }
 
 export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExploreServices }) => {
-  const handleWhatsApp = () => {
-    const text = encodeURIComponent(`Hello ${SALON_INFO.name}, I would like to enquire about booking an appointment.`);
-    window.open(`https://wa.me/${SALON_INFO.whatsappRaw}?text=${text}`, '_blank');
-  };
+  const { businessInfo, getWhatsAppUrl } = useSalon();
 
   const handleGetDirections = () => {
-    window.open(SALON_INFO.googleMapsUrl, '_blank');
+    window.open(businessInfo.googleMapsUrl, '_blank');
   };
 
   return (
@@ -58,14 +56,11 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExploreServices }) 
               Explore Services
             </button>
 
-            <button
-              onClick={handleWhatsApp}
-              className="flex items-center justify-center sm:justify-start gap-3 py-2 px-2 text-[11px] uppercase tracking-widest font-bold text-[#121212] hover:text-[#C5A059] group cursor-pointer transition-colors"
+            <WhatsAppButton
+              size="md"
+              label="WhatsApp Us"
               id="hero-whatsapp-btn"
-            >
-              <span>WhatsApp Us</span>
-              <span className="group-hover:translate-x-1 transition-transform font-sans">&rarr;</span>
-            </button>
+            />
           </div>
         </div>
 
@@ -90,7 +85,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExploreServices }) 
                 ★★★★★
               </div>
               <span className="text-[10px] font-bold uppercase tracking-widest text-[#121212]">
-                {SALON_INFO.rating} Rating
+                {businessInfo.rating} Rating
               </span>
             </div>
             

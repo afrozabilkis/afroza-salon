@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sparkles, Calendar, Clock, ArrowRight, Tag } from 'lucide-react';
-import { SPECIAL_OFFERS } from '../data/salonData';
+import { useSalon } from '../context/SalonContext';
 
 interface OffersSectionProps {
   onOpenBooking: (serviceId?: string) => void;
@@ -8,8 +8,12 @@ interface OffersSectionProps {
 }
 
 export const OffersSection: React.FC<OffersSectionProps> = ({ onOpenBooking, onViewAllOffers }) => {
+  const { activeOffers, formatPriceAED } = useSalon();
+
+  if (activeOffers.length === 0) return null;
+
   return (
-    <section className="py-20 sm:py-28 bg-[#F9F7F2] text-[#121212] border-b border-[#E5E1DA]" id="offers-section">
+    <section className="py-20 sm:py-28 bg-[#F9F7F2] text-[#121212]" id="offers-section">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
@@ -27,8 +31,8 @@ export const OffersSection: React.FC<OffersSectionProps> = ({ onOpenBooking, onV
 
         {/* Offers Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {SPECIAL_OFFERS.map((offer) => {
-            const savingsAED = offer.originalPriceAED - offer.offerPriceAED;
+          {activeOffers.map((offer) => {
+            const savingsAED = Math.max(0, (offer.originalPriceAED || 0) - (offer.offerPriceAED || 0));
             return (
               <div
                 key={offer.id}
@@ -81,19 +85,21 @@ export const OffersSection: React.FC<OffersSectionProps> = ({ onOpenBooking, onV
                     </p>
 
                     {/* Inclusions List */}
-                    <div className="bg-[#F4F1EC] p-4 border border-[#E5E1DA] space-y-2">
-                      <span className="text-[9px] uppercase tracking-widest text-[#121212] font-bold block">
-                        Privilege Inclusions:
-                      </span>
-                      <ul className="space-y-1.5 text-xs text-[#121212] font-light">
-                        {offer.inclusions.map((inc, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <span className="text-[#C5A059] font-bold mt-0.5">•</span>
-                            <span>{inc}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    {offer.inclusions && offer.inclusions.length > 0 && (
+                      <div className="bg-[#F4F1EC] p-4 border border-[#E5E1DA] space-y-2">
+                        <span className="text-[9px] uppercase tracking-widest text-[#121212] font-bold block">
+                          Privilege Inclusions:
+                        </span>
+                        <ul className="space-y-1.5 text-xs text-[#121212] font-light">
+                          {offer.inclusions.map((inc, i) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <span className="text-[#C5A059] font-bold mt-0.5">•</span>
+                              <span>{inc}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -102,15 +108,19 @@ export const OffersSection: React.FC<OffersSectionProps> = ({ onOpenBooking, onV
                   <div className="pt-4 flex items-center justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-[#4A4A4A] line-through font-light">
-                          AED {offer.originalPriceAED}
-                        </span>
-                        <span className="text-[9px] uppercase tracking-wider bg-[#F4F1EC] text-[#C5A059] px-2 py-0.5 border border-[#E5E1DA] font-bold">
-                          Save AED {savingsAED}
-                        </span>
+                        {offer.originalPriceAED > 0 && (
+                          <span className="text-xs text-[#4A4A4A] line-through font-light">
+                            {formatPriceAED(offer.originalPriceAED)}
+                          </span>
+                        )}
+                        {savingsAED > 0 && (
+                          <span className="text-[9px] uppercase tracking-wider bg-[#F4F1EC] text-[#C5A059] px-2 py-0.5 border border-[#E5E1DA] font-bold">
+                            Save {formatPriceAED(savingsAED)}
+                          </span>
+                        )}
                       </div>
                       <div className="font-serif text-2xl font-bold text-[#121212]">
-                        AED {offer.offerPriceAED}
+                        {formatPriceAED(offer.offerPriceAED)}
                       </div>
                     </div>
 
@@ -133,3 +143,4 @@ export const OffersSection: React.FC<OffersSectionProps> = ({ onOpenBooking, onV
     </section>
   );
 };
+

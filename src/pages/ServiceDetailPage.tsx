@@ -4,14 +4,13 @@ import {
   Clock, 
   Sparkles, 
   CheckCircle2, 
-  MessageSquare, 
   Calendar, 
   ShieldCheck, 
   ArrowRight,
   PackageCheck
 } from 'lucide-react';
-import { SERVICES, SALON_INFO } from '../data/salonData';
-import { Service } from '../types';
+import { useSalon } from '../context/SalonContext';
+import { WhatsAppButton } from '../components/WhatsAppButton';
 
 interface ServiceDetailPageProps {
   slug: string;
@@ -26,17 +25,30 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
   onOpenBooking,
   onSelectRelated,
 }) => {
-  const service = SERVICES.find((s) => s.slug === slug) || SERVICES[0];
-  const relatedServices = SERVICES.filter(
-    (s) => s.category === service.category && s.id !== service.id
+  const { activeServices, businessInfo, formatPriceAED, getWhatsAppUrl } = useSalon();
+
+  const service = activeServices.find((s) => s.slug === slug || s.id === slug) || activeServices[0];
+  const relatedServices = activeServices.filter(
+    (s) => s.category === service?.category && s.id !== service?.id
   ).slice(0, 3);
 
   const handleWhatsAppInquiry = () => {
-    const text = encodeURIComponent(
-      `Hello ${SALON_INFO.name}, I am inquiring about booking the "${service.name}" (AED ${service.priceAED}). Could you please advise on availability today?`
-    );
-    window.open(`https://wa.me/${SALON_INFO.whatsappRaw}?text=${text}`, '_blank');
+    if (!service) return;
+    const text = 
+      `Hello ${businessInfo.name}, I am inquiring about booking the "${service.name}" (${formatPriceAED(service.priceAED)}).\n` +
+      `Could you please advise on availability today?`;
+    const url = getWhatsAppUrl(text);
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
+
+  if (!service) {
+    return (
+      <div className="py-20 text-center">
+        <p>Service not found.</p>
+        <button onClick={onBack} className="mt-4 px-4 py-2 bg-black text-white">Back</button>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full py-12 sm:py-20 bg-[#F9F7F2] text-[#121212]" id="service-detail-page">
@@ -93,7 +105,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
                     Grooming Rate
                   </span>
                   <div className="font-serif text-3xl sm:text-4xl font-bold text-[#121212]">
-                    AED {service.priceAED}
+                    {formatPriceAED(service.priceAED)}
                   </div>
                 </div>
                 <div className="text-right">
@@ -117,21 +129,19 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
                   <span>Book This Service</span>
                 </button>
 
-                <button
+                <WhatsAppButton
                   onClick={handleWhatsAppInquiry}
-                  className="py-4 px-6 bg-white hover:bg-[#121212] hover:text-white border border-[#E5E1DA] text-[#121212] text-[11px] uppercase tracking-widest font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  size="md"
+                  label="WhatsApp Barbers"
                   id="detail-whatsapp-inquire-btn"
-                >
-                  <MessageSquare className="w-4 h-4 text-emerald-600" />
-                  <span>WhatsApp Barbers</span>
-                </button>
+                />
               </div>
 
               <div className="pt-3 border-t border-[#E5E1DA] flex items-center justify-between text-xs text-[#4A4A4A] font-light">
                 <span className="flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-[#C5A059]" /> Sterilized Single-Use Tools
                 </span>
-                <span>Al Marsoumy Bldg, Warsan 4</span>
+                <span>{businessInfo.shortLocation}</span>
               </div>
 
             </div>
@@ -234,7 +244,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
                   </div>
                   <div className="pt-4 mt-3 border-t border-[#E5E1DA] flex items-center justify-between">
                     <span className="font-serif text-base font-bold text-[#121212]">
-                      AED {rel.priceAED}
+                      {formatPriceAED(rel.priceAED)}
                     </span>
                     <span className="text-xs font-bold text-[#C5A059] group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
                       Explore <ArrowRight className="w-3 h-3" />

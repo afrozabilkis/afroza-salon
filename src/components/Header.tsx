@@ -9,9 +9,12 @@ import {
   X, 
   ChevronRight, 
   Sparkles,
-  Calendar
+  Calendar,
+  Shield
 } from 'lucide-react';
-import { SALON_INFO } from '../data/salonData';
+import { useSalon } from '../context/SalonContext';
+import { WhatsAppButton } from './WhatsAppButton';
+import { PwaInstallButton } from './PwaInstallButton';
 
 interface HeaderProps {
   currentPath: string;
@@ -26,6 +29,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenBooking,
   onOpenPwaInstall,
 }) => {
+  const { businessInfo, websiteSettings, getWhatsAppUrl } = useSalon();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -59,8 +63,8 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   const openWhatsApp = () => {
-    const text = encodeURIComponent(`Hello, I would like to enquire about an appointment at ${SALON_INFO.name}.`);
-    window.open(`https://wa.me/${SALON_INFO.whatsappRaw}?text=${text}`, '_blank');
+    const url = getWhatsAppUrl();
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -68,27 +72,28 @@ export const Header: React.FC<HeaderProps> = ({
       
       {/* Top Announcement Bar */}
       <div className="bg-[#121212] text-[#F9F7F2] py-2 px-4 sm:px-10 text-[10px] tracking-[0.2em] uppercase flex justify-between items-center border-b border-[#2C2C2C] font-sans">
-        <span className="hidden sm:inline">
-          {SALON_INFO.address} • Open Daily 10:00 AM — 12:00 AM
+        <span className="hidden sm:inline text-[#E5E1DA]">
+          {websiteSettings.announcementBarText || `${businessInfo.address} • Open Daily 10:00 AM — 12:00 AM`}
         </span>
-        <span className="sm:hidden text-[9px]">
+        <span className="sm:hidden text-[9px] text-[#E5E1DA]">
           Warsan 4, Dubai • Daily 10:00 AM — 12:00 AM
         </span>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 sm:gap-6">
           <button
             onClick={openWhatsApp}
-            className="hover:text-[#C5A059] transition-colors cursor-pointer"
+            className="text-emerald-400 hover:text-emerald-300 font-bold transition-colors cursor-pointer flex items-center gap-1.5"
             id="top-bar-whatsapp-link"
           >
-            WhatsApp: {SALON_INFO.whatsapp}
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>WhatsApp: {businessInfo.whatsapp}</span>
           </button>
-          <button
+
+          <PwaInstallButton
             onClick={onOpenPwaInstall}
-            className="underline underline-offset-4 hover:text-[#C5A059] transition-colors cursor-pointer hidden md:inline"
-            id="top-bar-install-link"
-          >
-            Install App
-          </button>
+            size="sm"
+            id="top-bar-install-btn"
+            className="hidden md:inline-flex"
+          />
         </div>
       </div>
 
@@ -128,15 +133,15 @@ export const Header: React.FC<HeaderProps> = ({
             id="header-brand-logo"
           >
             <h1 className="text-xl sm:text-2xl font-serif tracking-[0.15em] font-bold text-[#121212]">
-              AFROZA GENTS SALON
+              {websiteSettings.logoText || 'AFROZA GENTS SALON'}
             </h1>
             <p className="text-[8px] tracking-[0.4em] uppercase text-[#4A4A4A] opacity-70 -mt-0.5">
-              International City 2 • Dubai • Premier Barbershop
+              {websiteSettings.logoSubtitle || 'International City 2 • Dubai • Premier Barbershop'}
             </p>
           </button>
 
-          {/* Right Nav Links & Booking */}
-          <div className="hidden lg:flex items-center gap-6">
+          {/* Right Nav Links & Actions */}
+          <div className="hidden lg:flex items-center gap-5">
             <div className="hidden xl:flex items-center gap-7 text-[11px] uppercase tracking-widest font-medium text-[#121212]">
               {navLinks.slice(4).map((link) => {
                 const isActive = currentPath === link.path || (link.path !== '/' && currentPath.startsWith(link.path));
@@ -155,12 +160,18 @@ export const Header: React.FC<HeaderProps> = ({
               })}
             </div>
 
+            <WhatsAppButton
+              size="sm"
+              label="WhatsApp"
+              id="header-nav-whatsapp-btn"
+            />
+
             <button
               onClick={() => onOpenBooking()}
-              className="bg-[#121212] text-white px-6 py-3 text-[11px] uppercase tracking-widest font-semibold hover:bg-[#C5A059] hover:text-white transition-all shadow-xs cursor-pointer"
+              className="bg-[#121212] text-white px-6 py-2.5 text-[11px] uppercase tracking-widest font-semibold hover:bg-[#C5A059] hover:text-white transition-all shadow-xs cursor-pointer"
               id="header-book-appointment-btn"
             >
-              Book Appointment
+              Book Now
             </button>
           </div>
 
@@ -168,7 +179,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-2 lg:hidden">
             <button
               onClick={openWhatsApp}
-              className="p-2 text-[#121212] bg-[#F4F1EC] border border-[#E5E1DA] hover:text-[#C5A059] transition-colors"
+              className="p-2 text-white bg-gradient-to-r from-[#00C853] to-[#25D366] rounded-sm shadow-xs active:scale-95 transition-transform"
               aria-label="Open WhatsApp"
               id="mobile-whatsapp-quick-btn"
             >
@@ -232,27 +243,22 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  openWhatsApp();
-                }}
-                className="py-3 bg-white border border-[#E5E1DA] text-[#121212] text-[10px] uppercase tracking-wider font-semibold flex items-center justify-center gap-2"
-              >
-                <MessageSquare className="w-4 h-4 text-emerald-600" />
-                <span>WhatsApp</span>
-              </button>
+              <WhatsAppButton
+                fullWidth
+                size="md"
+                label="WhatsApp"
+                id="mobile-drawer-whatsapp-btn"
+              />
 
-              <button
+              <PwaInstallButton
                 onClick={() => {
                   setIsMobileMenuOpen(false);
                   onOpenPwaInstall();
                 }}
-                className="py-3 bg-white border border-[#E5E1DA] text-[#121212] text-[10px] uppercase tracking-wider font-semibold flex items-center justify-center gap-2"
-              >
-                <Download className="w-4 h-4 text-[#C5A059]" />
-                <span>Install App</span>
-              </button>
+                size="md"
+                id="mobile-drawer-pwa-btn"
+                className="w-full"
+              />
             </div>
           </div>
         </div>

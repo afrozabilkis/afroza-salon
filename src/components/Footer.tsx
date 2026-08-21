@@ -10,7 +10,7 @@ import {
   Star, 
   ExternalLink 
 } from 'lucide-react';
-import { SALON_INFO, CATEGORIES } from '../data/salonData';
+import { useSalon } from '../context/SalonContext';
 
 interface FooterProps {
   onNavigate: (path: string) => void;
@@ -23,13 +23,15 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenBooking,
   onOpenPwaInstall,
 }) => {
+  const { businessInfo, activeCategories, getWhatsAppUrl } = useSalon();
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const openWhatsApp = () => {
-    const text = encodeURIComponent(`Hello ${SALON_INFO.name}, I would like to enquire about an appointment.`);
-    window.open(`https://wa.me/${SALON_INFO.whatsappRaw}?text=${text}`, '_blank');
+    const url = getWhatsAppUrl(`Hello ${businessInfo.name}, I would like to enquire about an appointment.`);
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -47,7 +49,7 @@ export const Footer: React.FC<FooterProps> = ({
               </div>
               <div>
                 <span className="font-serif text-2xl font-bold tracking-tight text-white block leading-none">
-                  AFROZA
+                  {businessInfo.name.toUpperCase()}
                 </span>
                 <span className="text-[9px] uppercase tracking-[0.3em] text-[#C5A059] font-bold block mt-1">
                   Gents Salon &amp; Barbershop
@@ -56,7 +58,7 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
 
             <p className="text-xs text-[#E5E1DA] leading-relaxed font-light">
-              A premier gentlemen's grooming destination in International City Phase 2 (Warsan 4), Dubai, dedicated to executive skin fades, royal hot towel beard sculpting, Nanoplastia smoothing, charcoal detox facials, and luxury hand &amp; foot care.
+              A premier gentlemen's grooming destination in {businessInfo.shortLocation}, dedicated to executive skin fades, royal hot towel beard sculpting, Nanoplastia smoothing, charcoal detox facials, and luxury hand &amp; foot care.
             </p>
 
             <div className="flex items-center gap-3 pt-2">
@@ -135,7 +137,7 @@ export const Footer: React.FC<FooterProps> = ({
               Grooming Rituals
             </span>
             <ul className="space-y-2 text-xs text-[#E5E1DA] font-light">
-              {CATEGORIES.map((cat) => (
+              {activeCategories.map((cat) => (
                 <li key={cat.id}>
                   <button 
                     onClick={() => onNavigate('/services')} 
@@ -157,24 +159,24 @@ export const Footer: React.FC<FooterProps> = ({
             <div className="space-y-3 text-xs text-[#E5E1DA] font-light">
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
-                <span>{SALON_INFO.address}</span>
+                <span>{businessInfo.address}</span>
               </div>
 
               <div className="flex items-center gap-2.5">
                 <Clock className="w-4 h-4 text-[#C5A059] shrink-0" />
-                <span>Daily: 10:00 AM – 12:00 AM (Midnight)</span>
+                <span>Daily: 10:00 AM – {businessInfo.closingTime || '12:00 AM (Midnight)'}</span>
               </div>
 
               <div className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-[#C5A059] shrink-0" />
-                <a href={`tel:${SALON_INFO.phone.replace(/\s+/g, '')}`} className="hover:text-white transition-colors">
-                  {SALON_INFO.phoneDisplay}
+                <a href={`tel:${businessInfo.phone.replace(/\s+/g, '')}`} className="hover:text-white transition-colors">
+                  {businessInfo.phoneDisplay}
                 </a>
               </div>
 
               <div className="flex items-center gap-2.5">
                 <MessageSquare className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>WhatsApp: {SALON_INFO.whatsapp}</span>
+                <span>WhatsApp: {businessInfo.whatsapp}</span>
               </div>
             </div>
 
@@ -195,9 +197,9 @@ export const Footer: React.FC<FooterProps> = ({
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-[11px] text-[#A0988E] font-light">
           
           <div className="flex flex-wrap items-center gap-4 text-center sm:text-left">
-            <span>© {new Date().getFullYear()} {SALON_INFO.name}. All rights reserved.</span>
+            <span>© {new Date().getFullYear()} {businessInfo.name}. All rights reserved.</span>
             <span>•</span>
-            <span>Al Marsoumy Building, Warsan 4, Dubai, UAE</span>
+            <span>{businessInfo.address}</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
@@ -217,6 +219,14 @@ export const Footer: React.FC<FooterProps> = ({
               Cookie Policy
             </button>
             <span>•</span>
+            <button 
+              onClick={() => onNavigate('/admin')} 
+              className="text-[#C5A059] hover:text-white transition-colors cursor-pointer flex items-center gap-1 font-medium"
+              id="footer-admin-link"
+            >
+              <span>Admin Portal</span>
+            </button>
+            <span>•</span>
             <button onClick={scrollToTop} className="p-1.5 bg-[#1E1E1E] hover:bg-[#2C2C2C] text-[#C5A059] border border-[#333333] cursor-pointer" title="Back to top">
               <ArrowUp className="w-4 h-4" />
             </button>
@@ -228,3 +238,4 @@ export const Footer: React.FC<FooterProps> = ({
     </footer>
   );
 };
+

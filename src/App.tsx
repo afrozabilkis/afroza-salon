@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSalon } from './context/SalonContext';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { BookingModal } from './components/BookingModal';
@@ -17,7 +18,12 @@ import { ContactPage } from './pages/ContactPage';
 import { BookPage } from './pages/BookPage';
 import { LegalPage } from './pages/LegalPage';
 
+import { AdminLogin } from './pages/admin/AdminLogin';
+import { AdminDashboard } from './pages/admin/AdminDashboard';
+
 export default function App() {
+  const { isAdminAuthenticated } = useSalon();
+
   // Navigation Path state
   const [currentPath, setCurrentPath] = useState<string>(() => {
     const p = window.location.pathname || '/';
@@ -93,6 +99,23 @@ export default function App() {
       setIsPwaModalOpen(true);
     }
   };
+
+  // If on /admin route, render dedicated admin layout
+  if (currentPath === '/admin' || currentPath.startsWith('/admin')) {
+    if (!isAdminAuthenticated) {
+      return (
+        <AdminLogin
+          onSuccess={() => navigate('/admin')}
+          onReturnToStore={() => navigate('/')}
+        />
+      );
+    }
+    return (
+      <AdminDashboard
+        onNavigateToStore={() => navigate('/')}
+      />
+    );
+  }
 
   // Render current active view
   const renderCurrentView = () => {

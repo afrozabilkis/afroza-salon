@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Sparkles, Clock, ArrowRight, Check, SlidersHorizontal } from 'lucide-react';
-import { CATEGORIES, SERVICES } from '../data/salonData';
+import { useSalon } from '../context/SalonContext';
 import { Service } from '../types';
 
 interface ServicesPageProps {
@@ -12,12 +12,13 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
   onOpenBooking,
   onSelectServiceDetail,
 }) => {
+  const { activeServices, activeCategories, formatPriceAED } = useSalon();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'duration'>('featured');
 
   const filteredServices = useMemo(() => {
-    return SERVICES.filter((service) => {
+    return activeServices.filter((service) => {
       const matchesCat = selectedCategory === 'all' || service.category === selectedCategory;
       const q = searchQuery.toLowerCase().trim();
       const matchesSearch = !q || 
@@ -32,7 +33,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
       if (sortBy === 'duration') return a.durationMinutes - b.durationMinutes;
       return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
     });
-  }, [selectedCategory, searchQuery, sortBy]);
+  }, [activeServices, selectedCategory, searchQuery, sortBy]);
 
   return (
     <div className="w-full py-14 sm:py-24 bg-[#F9F7F2] text-[#121212]" id="services-page">
@@ -105,10 +106,10 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                   : 'bg-[#F9F7F2] text-[#4A4A4A] hover:bg-[#E5E1DA] border border-[#E5E1DA]'
               }`}
             >
-              All Services ({SERVICES.length})
+              All Services ({activeServices.length})
             </button>
-            {CATEGORIES.map((cat) => {
-              const count = SERVICES.filter((s) => s.category === cat.id).length;
+            {activeCategories.map((cat) => {
+              const count = activeServices.filter((s) => s.category === cat.id).length;
               return (
                 <button
                   key={cat.id}
@@ -217,7 +218,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                   <div>
                     <span className="text-[9px] uppercase tracking-widest text-[#C5A059] font-bold block">Rate</span>
                     <span className="font-serif text-2xl font-bold text-[#121212]">
-                      AED {service.priceAED}
+                      {formatPriceAED(service.priceAED)}
                     </span>
                   </div>
 
@@ -247,3 +248,4 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
     </div>
   );
 };
+

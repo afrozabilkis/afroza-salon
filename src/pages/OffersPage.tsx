@@ -1,12 +1,14 @@
 import React from 'react';
 import { Sparkles, Clock, ArrowRight, ShieldCheck, Check } from 'lucide-react';
-import { SPECIAL_OFFERS, SALON_INFO } from '../data/salonData';
+import { useSalon } from '../context/SalonContext';
 
 interface OffersPageProps {
   onOpenBooking: (serviceId?: string) => void;
 }
 
 export const OffersPage: React.FC<OffersPageProps> = ({ onOpenBooking }) => {
+  const { activeOffers, formatPriceAED } = useSalon();
+
   return (
     <div className="w-full py-14 sm:py-24 bg-[#F9F7F2] text-[#121212]" id="offers-page">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
@@ -26,8 +28,8 @@ export const OffersPage: React.FC<OffersPageProps> = ({ onOpenBooking }) => {
 
         {/* Offers Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {SPECIAL_OFFERS.map((offer) => {
-            const savingsAED = offer.originalPriceAED - offer.offerPriceAED;
+          {activeOffers.map((offer) => {
+            const savingsAED = Math.max(0, (offer.originalPriceAED || 0) - (offer.offerPriceAED || 0));
             return (
               <div
                 key={offer.id}
@@ -74,19 +76,21 @@ export const OffersPage: React.FC<OffersPageProps> = ({ onOpenBooking }) => {
                       {offer.description}
                     </p>
 
-                    <div className="bg-[#F9F7F2] p-5 border border-[#E5E1DA] space-y-2.5">
-                      <span className="text-[10px] uppercase tracking-widest text-[#121212] font-bold block">
-                        Included in this Session:
-                      </span>
-                      <ul className="space-y-2 text-xs text-[#4A4A4A] font-light">
-                        {offer.inclusions.map((inc, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <Check className="w-3.5 h-3.5 text-[#C5A059] shrink-0 mt-0.5" />
-                            <span>{inc}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    {offer.inclusions && offer.inclusions.length > 0 && (
+                      <div className="bg-[#F9F7F2] p-5 border border-[#E5E1DA] space-y-2.5">
+                        <span className="text-[10px] uppercase tracking-widest text-[#121212] font-bold block">
+                          Included in this Session:
+                        </span>
+                        <ul className="space-y-2 text-xs text-[#4A4A4A] font-light">
+                          {offer.inclusions.map((inc, i) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <Check className="w-3.5 h-3.5 text-[#C5A059] shrink-0 mt-0.5" />
+                              <span>{inc}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -94,15 +98,19 @@ export const OffersPage: React.FC<OffersPageProps> = ({ onOpenBooking }) => {
                   <div className="p-5 bg-[#121212] text-white flex items-center justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-[#A0988E] line-through">
-                          AED {offer.originalPriceAED}
-                        </span>
-                        <span className="text-[9px] uppercase tracking-widest bg-[#C5A059]/30 text-[#C5A059] px-2 py-0.5 font-bold">
-                          Save AED {savingsAED}
-                        </span>
+                        {offer.originalPriceAED > 0 && (
+                          <span className="text-xs text-[#A0988E] line-through">
+                            {formatPriceAED(offer.originalPriceAED)}
+                          </span>
+                        )}
+                        {savingsAED > 0 && (
+                          <span className="text-[9px] uppercase tracking-widest bg-[#C5A059]/30 text-[#C5A059] px-2 py-0.5 font-bold">
+                            Save {formatPriceAED(savingsAED)}
+                          </span>
+                        )}
                       </div>
                       <div className="font-serif text-2xl font-bold text-[#C5A059]">
-                        AED {offer.offerPriceAED}
+                        {formatPriceAED(offer.offerPriceAED)}
                       </div>
                     </div>
 
@@ -134,3 +142,4 @@ export const OffersPage: React.FC<OffersPageProps> = ({ onOpenBooking }) => {
     </div>
   );
 };
+
